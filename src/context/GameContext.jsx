@@ -93,67 +93,14 @@ function gameReducer(state, action) {
       };
     }
 
-    /* 
-     ========================================================================
-     🎓 TEACHABLE MOMENT & MANUAL INTERN ASSIGNMENT (15 MARKS)
-     ========================================================================
-     No AI/Cursor allowed for this! You need to implement the UNDO functionality.
-     
-     Here are your requirements & design directions for Option C (Undo Move):
-     
-     1. How to revert the board?
-        - You need to access the history array: `state.history`.
-        - The current board is the last element: `state.history[state.history.length - 1]`.
-        - To undo, you want to revert to a previous board state in the history.
-        
-     2. Handling PvP vs AI undoing:
-        - In PvP mode: Clicking undo should step back exactly 1 move.
-          New board becomes `state.history[state.history.length - 2]`.
-          New history should have the last element removed (popped).
-          Turn player (`xIsNext`) must be toggled back.
-          
-        - In Play vs AI mode: Since the computer plays immediately after you,
-          stepping back 1 move would revert to the board *after* your click (which is the AI's turn).
-          The AI would immediately move again!
-          To fix this, in AI mode you must step back 2 moves:
-          New board becomes `state.history[state.history.length - 3]`.
-          New history should have the last two elements removed.
-          (Make sure history has at least 3 states before undoing 2 moves,
-          otherwise if length is 2 or 3, you can just reset to initial board).
-          
-     3. Adjusting Scores on Undo (Optional/Extra Credit):
-        - If a player undid a winning move, you should decrement the win counter!
-          To do this cleanly, think about comparing the outcome of the undone board
-          versus the current board. Or just disable undoing once the game is won.
-          For this intern project, disabling the Undo button in the UI once the
-          game is over is a highly clean and recommended UX choice!
-     ========================================================================
-    */
     case 'UNDO': {
       // TODO: Implement the UNDO logic here.
-      // 1. Check if history length permits undoing.
-      // 2. Determine target index to rollback to based on state.gameMode.
-      // 3. Slice the history array to remove the rolled-back moves.
-      // 4. Determine correct turn direction (xIsNext).
-      // 5. Handle corner cases (e.g. reverting back to the initial state).
-      
-      // For now, it does nothing. Implement this without AI in your session!
       console.warn("UNDO action triggered but not implemented yet in gameReducer!");
       return state; 
     }
 
-    /*
-     ========================================================================
-     🎓 TEACHABLE MOMENT & MANUAL INTERN ASSIGNMENT (Alternative Option)
-     ========================================================================
-     If you choose Option B (Scoreboard reset) or want to add a Reset Scores action,
-     this is where it goes. It should reset the state.scores back to zero.
-     ========================================================================
-    */
     case 'RESET_SCORE': {
       // TODO: Implement the RESET_SCORE logic here.
-      // It should set state.scores back to { X: 0, O: 0, draws: 0 } without clearing the board.
-      
       console.warn("RESET_SCORE action triggered but not implemented yet!");
       return state; 
     }
