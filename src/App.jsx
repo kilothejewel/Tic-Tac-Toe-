@@ -1,4 +1,3 @@
-import React from 'react';
 import { GameProvider } from './context/GameContext';
 import GameStatus from './components/GameStatus';
 import Scoreboard from './components/Scoreboard';

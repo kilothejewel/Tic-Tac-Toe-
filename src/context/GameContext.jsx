@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useReducer, useEffect } from 'react';
 import { calculateWinner, checkDraw, getRandomMove, getBestMove } from '../utils/ai';
 
 // 1. Create the Context
@@ -22,7 +23,7 @@ function gameReducer(state, action) {
   switch (action.type) {
     case 'MAKE_MOVE': {
       const { index } = action.payload;
-      const { board, xIsNext, history, scores, gameMode, isAiMoving } = state;
+      const { board, xIsNext, history, scores, isAiMoving } = state;
 
       // Calculate if the game is already over
       const { winner } = calculateWinner(board);
@@ -150,7 +151,8 @@ export function GameProvider({ children }) {
 
       return () => clearTimeout(timer);
     }
-  }, [state.board, state.xIsNext, state.gameMode, state.aiDifficulty, state.isAiMoving, winner, isDraw]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.board, state.xIsNext, state.gameMode, state.aiDifficulty, winner, isDraw]);
 
   // Context value bundle
   const value = {
