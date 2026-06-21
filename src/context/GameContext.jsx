@@ -30,8 +30,8 @@ function gameReducer(state, action) {
       const { winner } = calculateWinner(board);
       const isDraw = checkDraw(board);
 
-      // Prevent moving if cell is filled, game is over, or AI is currently moving
-      if (board[index] || winner || isDraw || isAiMoving) {
+      // Prevent moving if cell is filled or game is over
+      if (board[index] || winner || isDraw) {
         return state;
       }
 
