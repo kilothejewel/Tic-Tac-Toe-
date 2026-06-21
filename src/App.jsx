@@ -3,6 +3,7 @@ import GameStatus from './components/GameStatus';
 import Scoreboard from './components/Scoreboard';
 import GameBoard from './components/GameBoard';
 import Controls from './components/Controls';
+import MoveHistory from './components/MoveHistory';
 
 /**
  * App Root Component: Wraps the core game panel in the GameProvider
@@ -19,10 +20,13 @@ function App() {
 
       {/* Main Glassmorphic Game Interface */}
       <div className="game-panel" id="game-panel">
-        <GameStatus />
-        <Scoreboard />
-        <GameBoard />
-        <Controls />
+        <div className="game-main">
+          <GameStatus />
+          <Scoreboard />
+          <GameBoard />
+          <Controls />
+        </div>
+        <MoveHistory />
       </div>
 
       {/* App Footer */}

@@ -12,6 +12,7 @@ const initialState = {
   // We store a history of boards to enable Undo and Time Travel features.
   // Each entry is a 9-element array snapshot of the board.
   history: [Array(9).fill(null)],
+  currentStep: 0, // Tracks the currently active board state in the history stack
   scores: { X: 0, O: 0, draws: 0 },
   gameMode: 'pvp', // 'pvp' | 'ai'
   aiDifficulty: 'hard', // 'easy' | 'hard'
@@ -23,7 +24,7 @@ function gameReducer(state, action) {
   switch (action.type) {
     case 'MAKE_MOVE': {
       const { index } = action.payload;
-      const { board, xIsNext, history, scores, isAiMoving } = state;
+      const { board, xIsNext, history, currentStep, scores, isAiMoving } = state;
 
       // Calculate if the game is already over
       const { winner } = calculateWinner(board);
@@ -34,12 +35,16 @@ function gameReducer(state, action) {
         return state;
       }
 
+      // Truncate the history to the current step (discards any "undone" or "future" moves)
+      const cleanHistory = history.slice(0, currentStep + 1);
+
       // Create new board state
-      const newBoard = [...board];
+      const newBoard = [...cleanHistory[currentStep]];
       newBoard[index] = xIsNext ? 'X' : 'O';
 
       // Record this move in the history stack
-      const newHistory = [...history, newBoard];
+      const newHistory = [...cleanHistory, newBoard];
+      const newStep = newHistory.length - 1;
 
       // Re-evaluate game status to update score card immediately
       const newOutcome = calculateWinner(newBoard);
@@ -57,6 +62,7 @@ function gameReducer(state, action) {
         board: newBoard,
         xIsNext: !xIsNext,
         history: newHistory,
+        currentStep: newStep,
         scores: newScores,
       };
     }
@@ -68,6 +74,7 @@ function gameReducer(state, action) {
         board: Array(9).fill(null),
         xIsNext: true,
         history: [Array(9).fill(null)],
+        currentStep: 0,
         isAiMoving: false,
       };
     }
@@ -95,15 +102,38 @@ function gameReducer(state, action) {
     }
 
     case 'UNDO': {
-      // TODO: Implement the UNDO logic here.
-      console.warn("UNDO action triggered but not implemented yet in gameReducer!");
-      return state; 
+      const { history, currentStep, gameMode } = state;
+      // In PvP mode, undo 1 step. In AI mode, undo 2 steps so we return to human's turn.
+      const stepsToUndo = gameMode === 'ai' ? 2 : 1;
+      const targetStep = Math.max(0, currentStep - stepsToUndo);
+      
+      return {
+        ...state,
+        board: history[targetStep],
+        xIsNext: targetStep % 2 === 0,
+        currentStep: targetStep,
+      };
     }
 
     case 'RESET_SCORE': {
-      // TODO: Implement the RESET_SCORE logic here.
-      console.warn("RESET_SCORE action triggered but not implemented yet!");
-      return state; 
+      return {
+        ...state,
+        scores: { X: 0, O: 0, draws: 0 },
+      };
+    }
+
+    case 'JUMP_TO_STEP': {
+      const stepIndex = action.payload;
+      const { history } = state;
+      if (stepIndex < 0 || stepIndex >= history.length) {
+        return state;
+      }
+      return {
+        ...state,
+        board: history[stepIndex],
+        xIsNext: stepIndex % 2 === 0,
+        currentStep: stepIndex,
+      };
     }
 
     default:
@@ -166,6 +196,7 @@ export function GameProvider({ children }) {
     undoMove: () => dispatch({ type: 'UNDO' }),
     setGameMode: (mode) => dispatch({ type: 'SET_GAME_MODE', payload: mode }),
     setDifficulty: (diff) => dispatch({ type: 'SET_DIFFICULTY', payload: diff }),
+    jumpToStep: (stepIndex) => dispatch({ type: 'JUMP_TO_STEP', payload: stepIndex }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
