@@ -24,7 +24,7 @@ function gameReducer(state, action) {
   switch (action.type) {
     case 'MAKE_MOVE': {
       const { index } = action.payload;
-      const { board, xIsNext, history, currentStep, scores, isAiMoving } = state;
+      const { board, xIsNext, history, currentStep, scores } = state;
 
       // Calculate if the game is already over
       const { winner } = calculateWinner(board);
