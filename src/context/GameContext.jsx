@@ -17,6 +17,8 @@ const initialState = {
   gameMode: 'pvp', // 'pvp' | 'ai'
   aiDifficulty: 'hard', // 'easy' | 'hard'
   isAiMoving: false, // Prevents clicks while computer is "thinking"
+  timeLeft: 15, // Seconds remaining for the current move
+  timeoutWinner: null, // Tracks if a player won because of a timeout
 };
 
 // 3. Define the Reducer Function
@@ -30,8 +32,8 @@ function gameReducer(state, action) {
       const { winner } = calculateWinner(board);
       const isDraw = checkDraw(board);
 
-      // Prevent moving if cell is filled or game is over
-      if (board[index] || winner || isDraw) {
+      // Prevent moving if cell is filled, game is over, or timed out
+      if (board[index] || winner || isDraw || state.timeoutWinner) {
         return state;
       }
 
@@ -64,6 +66,8 @@ function gameReducer(state, action) {
         history: newHistory,
         currentStep: newStep,
         scores: newScores,
+        timeLeft: 15, // Reset timer
+        timeoutWinner: null,
       };
     }
 
@@ -76,6 +80,8 @@ function gameReducer(state, action) {
         history: [Array(9).fill(null)],
         currentStep: 0,
         isAiMoving: false,
+        timeLeft: 15, // Reset timer
+        timeoutWinner: null,
       };
     }
 
@@ -84,6 +90,8 @@ function gameReducer(state, action) {
       return {
         ...initialState,
         gameMode: action.payload,
+        timeLeft: 15,
+        timeoutWinner: null,
       };
     }
 
@@ -112,6 +120,8 @@ function gameReducer(state, action) {
         board: history[targetStep],
         xIsNext: targetStep % 2 === 0,
         currentStep: targetStep,
+        timeLeft: 15, // Reset timer
+        timeoutWinner: null,
       };
     }
 
@@ -133,6 +143,36 @@ function gameReducer(state, action) {
         board: history[stepIndex],
         xIsNext: stepIndex % 2 === 0,
         currentStep: stepIndex,
+        timeLeft: 15, // Reset timer
+        timeoutWinner: null,
+      };
+    }
+
+    case 'TICK': {
+      // If the game is already over (by normal win, draw, or timeout), don't tick
+      const { winner } = calculateWinner(state.board);
+      const isDraw = checkDraw(state.board);
+      if (state.timeoutWinner || winner || isDraw) {
+        return state;
+      }
+
+      const newTimeLeft = Math.max(0, state.timeLeft - 1);
+      if (newTimeLeft === 0) {
+        // Current player timed out, so the opponent wins
+        const winner = state.xIsNext ? 'O' : 'X';
+        const newScores = { ...state.scores };
+        newScores[winner] += 1;
+        return {
+          ...state,
+          timeLeft: 0,
+          timeoutWinner: winner,
+          scores: newScores,
+        };
+      }
+
+      return {
+        ...state,
+        timeLeft: newTimeLeft,
       };
     }
 
@@ -145,9 +185,23 @@ function gameReducer(state, action) {
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  // Compute game conditions dynamically from the current board state
-  const { winner, line: winningLine } = calculateWinner(state.board);
-  const isDraw = checkDraw(state.board);
+  // Compute game conditions dynamically from the current board state and timeout state
+  const { winner: boardWinner, line: winningLine } = calculateWinner(state.board);
+  const winner = state.timeoutWinner || boardWinner;
+  const isDraw = !state.timeoutWinner && checkDraw(state.board);
+
+  // Time ticking interval effect
+  useEffect(() => {
+    if (winner || isDraw) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      dispatch({ type: 'TICK' });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [winner, isDraw, state.currentStep]);
 
   // AI Turn Handling Effect
   useEffect(() => {

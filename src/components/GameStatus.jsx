@@ -5,9 +5,18 @@ import { useGame } from '../context/GameContext';
  * or draw alerts. Enhances UX by acknowledging AI's thinking states.
  */
 export default function GameStatus() {
-  const { winner, isDraw, xIsNext, gameMode, isAiMoving } = useGame();
+  const { winner, isDraw, xIsNext, gameMode, isAiMoving, timeLeft, timeoutWinner } = useGame();
 
   const renderStatus = () => {
+    if (timeoutWinner) {
+      const badgeClass = timeoutWinner.toLowerCase();
+      const timedOutPlayer = timeoutWinner === 'X' ? 'O' : 'X';
+      return (
+        <>
+          Winner: <span className={`status-badge ${badgeClass}`}>{timeoutWinner}</span> (⏱️ {timedOutPlayer} timed out) 🎉
+        </>
+      );
+    }
     if (winner) {
       const badgeClass = winner.toLowerCase();
       return (
@@ -35,10 +44,14 @@ export default function GameStatus() {
 
     const currentPlayer = xIsNext ? 'X' : 'O';
     const badgeClass = currentPlayer.toLowerCase();
+    const isWarning = timeLeft <= 5;
     
     return (
       <>
         Next Player: <span className={`status-badge ${badgeClass}`}>{currentPlayer}</span>
+        <span className={`timer-badge ${isWarning ? 'warning' : ''}`} id="move-timer">
+          ⏱️ {timeLeft}s
+        </span>
       </>
     );
   };
