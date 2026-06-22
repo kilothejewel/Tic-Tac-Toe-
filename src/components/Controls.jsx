@@ -17,6 +17,7 @@ export default function Controls() {
     winner,
     isDraw,
     isAiMoving,
+    goToSetup,
   } = useGame();
 
   // Undo button is disabled if there are no moves to revert,
@@ -91,16 +92,28 @@ export default function Controls() {
         </button>
       </div>
 
-      {/* Secondary Action: Reset Scores */}
-      <button
-        type="button"
-        className="btn"
-        id="btn-reset-scores"
-        onClick={resetScore}
-        disabled={isAiMoving}
-      >
-        🔢 Reset Scores
-      </button>
+      {/* Secondary Actions: Reset Scores & Edit Names */}
+      <div className="control-row">
+        <button
+          type="button"
+          className="btn"
+          id="btn-reset-scores"
+          onClick={resetScore}
+          disabled={isAiMoving}
+        >
+          🔢 Reset Scores
+        </button>
+        
+        <button
+          type="button"
+          className="btn"
+          id="btn-edit-names"
+          onClick={goToSetup}
+          disabled={isAiMoving}
+        >
+          ✏️ Edit Names
+        </button>
+      </div>
     </section>
   );
 }

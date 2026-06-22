@@ -5,23 +5,26 @@ import { useGame } from '../context/GameContext';
  * or draw alerts. Enhances UX by acknowledging AI's thinking states.
  */
 export default function GameStatus() {
-  const { winner, isDraw, xIsNext, gameMode, isAiMoving, timeLeft, timeoutWinner } = useGame();
+  const { winner, isDraw, xIsNext, gameMode, isAiMoving, timeLeft, timeoutWinner, playerNames } = useGame();
 
   const renderStatus = () => {
     if (timeoutWinner) {
       const badgeClass = timeoutWinner.toLowerCase();
       const timedOutPlayer = timeoutWinner === 'X' ? 'O' : 'X';
+      const winnerName = playerNames?.[timeoutWinner] || timeoutWinner;
+      const timedOutName = playerNames?.[timedOutPlayer] || timedOutPlayer;
       return (
         <>
-          Winner: <span className={`status-badge ${badgeClass}`}>{timeoutWinner}</span> (⏱️ {timedOutPlayer} timed out) 🎉
+          Winner: <span className={`status-badge ${badgeClass}`}>{winnerName}</span> (⏱️ {timedOutName} timed out) 🎉
         </>
       );
     }
     if (winner) {
       const badgeClass = winner.toLowerCase();
+      const winnerName = playerNames?.[winner] || winner;
       return (
         <>
-          Winner: <span className={`status-badge ${badgeClass}`}>{winner}</span> 🎉
+          Winner: <span className={`status-badge ${badgeClass}`}>{winnerName}</span> 🎉
         </>
       );
     }
@@ -35,9 +38,10 @@ export default function GameStatus() {
 
     // AI thinking state check
     if (gameMode === 'ai' && !xIsNext && isAiMoving) {
+      const cpuName = playerNames?.O || 'Computer';
       return (
         <>
-          Computer is <span className="status-badge o">thinking...</span> 🤖
+          {cpuName} is <span className="status-badge o">thinking...</span> 🤖
         </>
       );
     }
@@ -45,10 +49,11 @@ export default function GameStatus() {
     const currentPlayer = xIsNext ? 'X' : 'O';
     const badgeClass = currentPlayer.toLowerCase();
     const isWarning = timeLeft <= 5;
+    const currentName = playerNames?.[currentPlayer] || currentPlayer;
     
     return (
       <>
-        Next Player: <span className={`status-badge ${badgeClass}`}>{currentPlayer}</span>
+        Next Player: <span className={`status-badge ${badgeClass}`}>{currentName}</span>
         <span className={`timer-badge ${isWarning ? 'warning' : ''}`} id="move-timer">
           ⏱️ {timeLeft}s
         </span>

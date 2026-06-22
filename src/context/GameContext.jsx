@@ -19,6 +19,8 @@ const initialState = {
   isAiMoving: false, // Prevents clicks while computer is "thinking"
   timeLeft: 15, // Seconds remaining for the current move
   timeoutWinner: null, // Tracks if a player won because of a timeout
+  playerNames: { X: 'Player X', O: 'Player O' },
+  gameStarted: false,
 };
 
 // 3. Define the Reducer Function
@@ -87,11 +89,40 @@ function gameReducer(state, action) {
 
     case 'SET_GAME_MODE': {
       // Changing modes resets the board and the scoreboard to ensure a fresh game.
+      const isAi = action.payload === 'ai';
       return {
         ...initialState,
         gameMode: action.payload,
+        playerNames: {
+          X: state.playerNames?.X || 'Player X',
+          O: isAi ? 'CPU' : 'Player O'
+        },
+        gameStarted: false,
         timeLeft: 15,
         timeoutWinner: null,
+      };
+    }
+
+    case 'START_GAME': {
+      const { X, O } = action.payload;
+      return {
+        ...state,
+        playerNames: { X, O },
+        gameStarted: true,
+        board: Array(9).fill(null),
+        xIsNext: true,
+        history: [Array(9).fill(null)],
+        currentStep: 0,
+        isAiMoving: false,
+        timeLeft: 15,
+        timeoutWinner: null,
+      };
+    }
+
+    case 'GO_TO_SETUP': {
+      return {
+        ...state,
+        gameStarted: false,
       };
     }
 
@@ -251,6 +282,8 @@ export function GameProvider({ children }) {
     setGameMode: (mode) => dispatch({ type: 'SET_GAME_MODE', payload: mode }),
     setDifficulty: (diff) => dispatch({ type: 'SET_DIFFICULTY', payload: diff }),
     jumpToStep: (stepIndex) => dispatch({ type: 'JUMP_TO_STEP', payload: stepIndex }),
+    startGame: (names) => dispatch({ type: 'START_GAME', payload: names }),
+    goToSetup: () => dispatch({ type: 'GO_TO_SETUP' }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

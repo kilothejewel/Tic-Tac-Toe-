@@ -1,9 +1,36 @@
-import { GameProvider } from './context/GameContext';
+import { GameProvider, useGame } from './context/GameContext';
 import GameStatus from './components/GameStatus';
 import Scoreboard from './components/Scoreboard';
 import GameBoard from './components/GameBoard';
 import Controls from './components/Controls';
 import MoveHistory from './components/MoveHistory';
+import GameSetup from './components/GameSetup';
+
+/**
+ * GameContent Component: Consumes context to conditionally switch
+ * between player setup screen and the active game panel.
+ */
+function GameContent() {
+  const { gameStarted } = useGame();
+
+  return (
+    <div className={`game-panel ${!gameStarted ? 'setup-mode' : ''}`} id="game-panel">
+      {!gameStarted ? (
+        <GameSetup />
+      ) : (
+        <>
+          <div className="game-main">
+            <GameStatus />
+            <Scoreboard />
+            <GameBoard />
+            <Controls />
+          </div>
+          <MoveHistory />
+        </>
+      )}
+    </div>
+  );
+}
 
 /**
  * App Root Component: Wraps the core game panel in the GameProvider
@@ -19,15 +46,7 @@ function App() {
       </header>
 
       {/* Main Glassmorphic Game Interface */}
-      <div className="game-panel" id="game-panel">
-        <div className="game-main">
-          <GameStatus />
-          <Scoreboard />
-          <GameBoard />
-          <Controls />
-        </div>
-        <MoveHistory />
-      </div>
+      <GameContent />
 
       {/* App Footer */}
       <footer className="app-footer" id="app-footer">
